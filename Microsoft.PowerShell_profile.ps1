@@ -46,6 +46,15 @@ function parseAlias {
         "mad" = "D:/new-new-mock-ads"
         "zad" = "D:/z-ad"
         "zad2" = "D:/z-ad-copy"
+        "ps" = "~/Documents/Powershell"
+        "hr" = "D:/zcloud/hr-fe"
+        "hr2" = "D:/zcloud/hr-fe-copy"
+        "hss" = "D:/zcloud/fintech-static"
+        "had" = "D:/zcloud/fiza-hr-admin"
+        "hbe" = "D:/zcloud/fiza-hr-be"
+        "hlp" = "D:/zcloud/fiza-hr-website-landing-page"
+        "hrmock" = "D:/zcloud/hr-mock-api"
+        "hadmock" = "D:/zcloud/hr-admin-mock-api"
 # Add more aliases as needed
     }
 
@@ -98,4 +107,52 @@ function init {
   # direction left:1, right:2, first:8
   # wt -w 0 move-focus --direction 1
   # Invoke-Expression -Command "lazygit"
+}
+
+function fz {
+    param (
+        [string]$InitialDirectory = "."
+    )
+
+    # Change to the initial directory
+    Set-Location $InitialDirectory
+    $findDirectories = "fd --type d --max-depth 5"
+    $findFiles = "fd --type f --max-depth 5"
+
+    # Store the STDOUT of fzf in a variable
+    $selection = & {
+        $fzfOptions = @(
+            '--multi', '--height=80%', '--border=sharp',
+            '--preview', '', '--preview-window', '45%,border-sharp',
+            '--prompt', 'Dirs > ',
+            '--bind', 'del:execute(rm -ri {+})',
+            '--bind', 'ctrl-u:toggle-preview',
+            '--bind', 'ctrl-d:change-prompt(Dirs > )',
+            '--bind', ('ctrl-d:+reload(' + $findDirectories + ')'),
+            '--bind', 'ctrl-d:+change-preview()',
+            '--bind', 'ctrl-d:+refresh-preview',
+            '--bind', 'ctrl-f:change-prompt(Files > )',
+            '--bind', ('ctrl-f:+reload(' + $findFiles + ')'),
+            '--bind', 'ctrl-f:+change-preview(cat {})',
+            '--bind', 'ctrl-f:+refresh-preview',
+            '--bind', 'ctrl-a:select-all',
+            '--bind', 'ctrl-x:deselect-all',
+            '--header', @"
+CTRL-D to display directories | CTRL-F to display files
+CTRL-A to select all | CTRL-X to deselect all
+ENTER to edit | DEL to delete
+CTRL-U to toggle preview
+"@
+        )
+        Invoke-Expression -Command $findDirectories | fzf @fzfOptions
+    }
+
+    # Determine what to do depending on the selection
+    if (Test-Path $selection -PathType Container) {
+        Set-Location $selection
+    } else {
+        # jump to file location before run command
+        # Set-Location (Split-Path $selection -Parent)
+        Invoke-Expression "nvim $selection"
+    }
 }
