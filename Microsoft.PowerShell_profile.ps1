@@ -9,9 +9,13 @@ oh-my-posh init pwsh | Invoke-Expression
 #   Import-Module "$ChocolateyProfile"
 # }
 
+# fzf
 Set-PsFzfOption -PSReadlineChordProvider 'Ctrl+t' -PSReadlineChordReverseHistory 'Ctrl+r'
 Import-Module PSFzf
 Set-PSReadLineKeyHandler -Key Tab -ScriptBlock { Invoke-FzfTabCompletion }
+
+# zoxide
+Invoke-Expression (& { (zoxide init powershell --cmd cd | Out-String) })
 
 # function Prompt {
 #   $loc = $executionContext.SessionState.Path.CurrentLocation;
