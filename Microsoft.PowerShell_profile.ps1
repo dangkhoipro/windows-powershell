@@ -12,21 +12,24 @@ oh-my-posh init pwsh | Invoke-Expression
 # fzf
 Set-PsFzfOption -PSReadlineChordProvider 'Ctrl+t' -PSReadlineChordReverseHistory 'Ctrl+r'
 Import-Module PSFzf
-Set-PSReadLineKeyHandler -Key Tab -ScriptBlock { Invoke-FzfTabCompletion }
+# Set-PSReadLineKeyHandler -Key Tab -ScriptBlock { Invoke-FzfTabCompletion }
 
 # zoxide
 Invoke-Expression (& { (zoxide init powershell --cmd cd | Out-String) })
 
-# function Prompt {
-#   $loc = $executionContext.SessionState.Path.CurrentLocation;
-#
-#   $out = ""
-#     if ($loc.Provider.Name -eq "FileSystem") {
-#       $out += "$([char]27)]9;9;`"$($loc.ProviderPath)`"$([char]27)\"
-#     }
-#   $out += "PS $loc$('>' * ($nestedPromptLevel + 1)) ";
-#   return $out
-# }
+# set default directory
+Set-Location D:/zcloud
+
+function Prompt {
+  $loc = $executionContext.SessionState.Path.CurrentLocation;
+
+  $out = ""
+    if ($loc.Provider.Name -eq "FileSystem") {
+      $out += "$([char]27)]9;9;`"$($loc.ProviderPath)`"$([char]27)\"
+    }
+  $out += "PS $loc$('>' * ($nestedPromptLevel + 1)) ";
+  return $out
+}
 
 function parseAlias {
   param(
@@ -163,4 +166,14 @@ CTRL-U to toggle preview
         # Set-Location (Split-Path $selection -Parent)
         Invoke-Expression "nvim $selection"
     }
+}
+
+function yy {
+    $tmp = [System.IO.Path]::GetTempFileName()
+    yazi $args --cwd-file="$tmp"
+    $cwd = Get-Content -Path $tmp
+    if (-not [String]::IsNullOrEmpty($cwd) -and $cwd -ne $PWD.Path) {
+        Set-Location -LiteralPath $cwd
+    }
+    Remove-Item -Path $tmp
 }
