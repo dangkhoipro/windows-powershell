@@ -18,7 +18,7 @@ Import-Module PSFzf
 Invoke-Expression (& { (zoxide init powershell --cmd cd | Out-String) })
 
 # set default directory
-Set-Location D:/zcloud
+# Set-Location D:/zcloud
 
 function Prompt {
   $loc = $executionContext.SessionState.Path.CurrentLocation;
@@ -167,6 +167,9 @@ CTRL-U to toggle preview
         Invoke-Expression "nvim $selection"
     }
 }
+
+# set alias for lazygit
+Set-Alias -Name lg -Value lazygit
 
 function yy {
     $tmp = [System.IO.Path]::GetTempFileName()
